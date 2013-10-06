@@ -57,3 +57,41 @@ posInt = Parser f
 ------------------------------------------------------------
 -- Your code goes below here
 ------------------------------------------------------------
+
+-- Ex.1
+first :: (a -> b) -> (a, c) -> (b, c)
+first f (x, y) = (f x, y)
+
+-- Ex.2
+instance Functor Parser where
+  fmap f (Parser g) = Parser $ \s -> case g s of
+    Nothing -> Nothing
+    Just p -> Just (first f p)
+
+instance Applicative Parser where
+  pure x = Parser $ \s -> Just (x, s)
+  Parser f <*> Parser g = Parser $ \s -> case f s of
+    Nothing -> Nothing
+    Just (h, s') -> case g s' of
+      Nothing -> Nothing
+      Just ans -> Just (first h ans)
+
+abParser :: Parser (Char, Char)
+abParser = (\x y -> (x, y)) <$> char 'a' <*> char 'b'
+
+abParser_ :: Parser ()
+abParser_ = (\_ _ -> ()) <$> char 'a' <*> char 'b'
+
+intPair :: Parser [Integer]
+intPair = (\x _ y -> [x, y]) <$> posInt <*> char ' ' <*> posInt
+
+-- Ex.4
+instance Alternative Parser where
+  empty = Parser $ \s -> Nothing
+  Parser f <|> Parser g = Parser $ \s -> case f s of
+    Nothing -> g s
+    ans -> ans
+
+-- Ex.5
+intOrUppercase :: Parser ()
+intOrUppercase = ((\_ -> ()) <$> posInt) <|> ((\_ -> ()) <$> (satisfy isUpper))
