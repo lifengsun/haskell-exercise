@@ -111,7 +111,7 @@ showVal (Bool True) = "#t"
 showVal (Bool False) = "#f"
 showVal (List list) = concat ["(", unwordsList list, ")"]
 showVal (DottedList init last) =
-  concat ["(", unwordsList init, ".", showVal last]
+  concat ["(", unwordsList init, " . ", showVal last, ")"]
 
 unwordsList :: [LispVal] -> String
 unwordsList = unwords . map showVal
